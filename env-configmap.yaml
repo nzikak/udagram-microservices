@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: udagram-configmap
+data:
+  aws-region: us-east-1
+  s3-bucket: udagram-755062685806-dev
+  db-name: udagram_db_dev
+  database-url: udagram-db-dev.cyyvrtrvbj5y.us-east-1.rds.amazonaws.com
+  aws-profile: default
+  jwt-secret: hellothere
+  url: http://localhost:8100

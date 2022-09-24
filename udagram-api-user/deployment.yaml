@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-api-user-deployment
+  labels:
+    service: udagram-api-user
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      service: udagram-api-user
+  template:
+    metadata:
+      labels:
+        service: udagram-api-user
+    spec:
+      containers:
+      - name: udagram-api-user
+        image: nzikak/udagram-api-user:v1
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "2048Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: aws-secret
+          mountPath: /root/.aws
+          readOnly: true
+        env:
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef: 
+              name: udagram-secret
+              key: db-username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef: 
+              name: udagram-secret
+              key: db-password
+        - name: POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: database-url
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: db-name
+        - name: AWS_BUCKET
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: s3-bucket
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: aws-region
+        - name: AWS_PROFILE
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: aws-profile
+        - name: JWT_SECRET
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: jwt-secret
+        - name: URL
+          valueFrom:
+            configMapKeyRef: 
+              name: udagram-configmap
+              key: url
+      volumes:
+      - name: aws-secret
+        secret:
+          secretName: aws-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: udagram-api-user-service
+spec:
+  selector:
+    service: udagram-api-user
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+
+
